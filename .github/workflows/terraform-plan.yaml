@@ -1,27 +1,19 @@
-name: Deploy MultiDocker
+name: Terraform Plan (PR)
+
 on:
-  push:
+  pull_request:
     branches:
-      - main # check your repo, your default branch might be master!
+      - main
+    paths:
+      - 'terraform/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/terraform-plan.yaml'
 
 jobs:
-  build:
+  plan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      - run: docker build -t gcelorrio/react-test -f ./client/Dockerfile.dev ./client
-      - run: docker run -e CI=true gcelorrio/react-test npm test
-
-      - run: docker build -t gcelorrio/multi-client ./client
-      - run: docker build -t gcelorrio/multi-nginx ./nginx
-      - run: docker build -t gcelorrio/multi-server ./server
-      - run: docker build -t gcelorrio/multi-worker ./worker
-
-      - run: docker push gcelorrio/multi-client
-      - run: docker push gcelorrio/multi-nginx
-      - run: docker push gcelorrio/multi-server
-      - run: docker push gcelorrio/multi-worker
 
       - name: Generate deployment package
         run: zip deploy.zip docker-compose.yml
@@ -48,7 +40,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -input=false -out=tfplan
+        run: terraform plan -input=false -no-color
         env:
           TF_VAR_Terra_aws_region: ${{ vars.AWS_REGION }}
           TF_VAR_Terra_eb_app_name: ${{ vars.EB_APP_NAME }}
@@ -56,7 +48,3 @@ jobs:
           TF_VAR_Terra_version_label: ${{ github.sha }}
           TF_VAR_Terra_deploy_package_path: ${{ github.workspace }}/deploy.zip
           TF_VAR_Terra_state_bucket: ${{ vars.TF_STATE_BUCKET }}
-
-      - name: Terraform Apply
-        working-directory: terraform
-        run: terraform apply -input=false -auto-approve tfplan
