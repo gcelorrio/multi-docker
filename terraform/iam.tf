@@ -54,7 +54,7 @@ resource "aws_iam_role" "eb_service" {
 
 resource "aws_iam_role_policy_attachment" "eb_service_health" {
   role       = aws_iam_role.eb_service.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkEnhancedHealth"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
 }
 
 resource "aws_iam_role_policy_attachment" "eb_service_updates" {

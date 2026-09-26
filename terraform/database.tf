@@ -29,7 +29,7 @@ resource "aws_db_instance" "postgres" {
   instance_class         = var.db_instance_class
   allocated_storage      = 20
   storage_type           = "gp2"
-  db_name                = "postgres"
+  db_name                = "fibvalues"
   username               = "postgres"
   password               = random_password.postgres.result
   db_subnet_group_name   = aws_db_subnet_group.main.name
