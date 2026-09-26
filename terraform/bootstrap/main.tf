@@ -43,6 +43,18 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
   }
 }
 
+# Elastic Beanstalk reutiliza este mismo bucket (nombre reservado
+# elasticbeanstalk-<region>-<account-id>) como su storage interno de entorno,
+# y necesita poder usar ACLs sobre el. El "Bucket owner enforced" (deshabilita
+# ACLs) que trae S3 por defecto desde 2023 rompe la creacion del entorno con
+# "the bucket does not allow ACLs".
+resource "aws_s3_bucket_ownership_controls" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "terraform_state" {
   bucket = aws_s3_bucket.terraform_state.id
 
