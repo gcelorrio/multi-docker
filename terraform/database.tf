@@ -7,6 +7,11 @@ resource "random_password" "postgres" {
 # entorno EB lo referencian a partir de aqui, no queda literal en el repo.
 resource "aws_secretsmanager_secret" "postgres" {
   name = "${var.Terra_eb_app_name}/postgres"
+
+  # Entorno solo de pruebas: borrado inmediato en vez de la ventana de
+  # recuperacion por defecto (30 dias), que impediria recrear el secreto
+  # con el mismo nombre justo despues de un destroy/replace.
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "postgres" {

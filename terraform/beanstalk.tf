@@ -79,7 +79,7 @@ resource "aws_elastic_beanstalk_environment" "this" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "REDIS_HOST"
-    value     = aws_elasticache_cluster.redis.cache_nodes[0].address
+    value     = aws_elasticache_replication_group.redis.primary_endpoint_address
   }
 
   setting {
@@ -120,7 +120,7 @@ resource "aws_elastic_beanstalk_environment" "this" {
 
   depends_on = [
     aws_db_instance.postgres,
-    aws_elasticache_cluster.redis,
+    aws_elasticache_replication_group.redis,
     aws_iam_instance_profile.eb_ec2,
     aws_iam_role_policy_attachment.eb_service_health,
     aws_iam_role_policy_attachment.eb_service_updates,
